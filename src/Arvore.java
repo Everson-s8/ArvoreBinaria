@@ -2,6 +2,8 @@ public class Arvore<T extends Comparable<T>> {
 
     public No<T> root;
 
+    int cont;
+
     public Arvore() {
         root = null;
     }
@@ -51,8 +53,8 @@ public class Arvore<T extends Comparable<T>> {
                 }
             }
         } return null;
-
     }
+
     // Na remoção existe 3 casos
     // 1ª Caso
     // Se não tiver filhos, no caso se for remover uma folha
@@ -70,41 +72,88 @@ public class Arvore<T extends Comparable<T>> {
     // Se tem dois filhos
     //
 
+
+    // Quando eu uso atual.pai estou me referindo ao pai do atual, também podendo ser lido como paiatual = atual.pai
     public void remover(T elemento) throws Exception{
         if (buscarElemento(elemento) == null){
             throw new Exception("Elemento não existe na arvore");
-        }else {
+        }
+        else {
             No<T> atual = buscarElemento(elemento);
             No<T> filhosubstituto = null;
-            No<T> paiatual = atual.pai;
-            if (atual.direita != null && atual.esquerda != null){  // se tem dois filhos
+            No<T> paisubstituto = atual;
 
-            } else if (atual.direita != null) { // se tem apenas um filho a direita
+            // Quando não é raiz e se tem dois filhos
+            if (atual.direita != null && atual.esquerda != null){
+               filhosubstituto = atual.getEsquerda();
 
-                filhosubstituto = atual.direita;        // estou salvando o filho do atual que se encontra a direita
-                if (filhosubstituto.dado.compareTo(paiatual.dado) == -1){ // agora estou comparando se o filho é menor que o pai
-                    paiatual.esquerda = filhosubstituto;                  // se for menor eu seto ele a esquerda
+               while (filhosubstituto.getDireita() != null){
+                   paisubstituto = filhosubstituto;
+                   filhosubstituto = filhosubstituto.direita;
+               }
+               filhosubstituto.direita = atual.direita;
+
+
+               if (atual.pai == null) {
+                   root.dado = filhosubstituto.dado;
+
+               }else{
+                   if (atual.dado.compareTo(atual.pai.dado) == -1) {
+                       atual.pai.esquerda = filhosubstituto;
+                   } else {
+                       atual.pai.direita = filhosubstituto;
+                   }
+               }
+
+
+
+
+            // Quando se tem um filho a esquerda ou direita
+            } else if (atual.direita != null) {
+
+                filhosubstituto = atual.direita;     // estou salvando o filho do atual que se encontra a direita
+
+                if (atual == root){
+                    root = filhosubstituto;
+                }
+                else{
+                    if (filhosubstituto.dado.compareTo(atual.pai.dado) == -1){   // agora estou comparando se o filho é menor que o pai
+                        atual.pai.esquerda = filhosubstituto;                    // se for menor eu seto ele a esquerda
+                    }else{
+                        atual.pai.direita = filhosubstituto;                     // se for maior eu seto ele a direita
+                    }
+                }
+            } else if (atual.esquerda != null) {                            // se tem apenas um filho a esquerda
+
+                filhosubstituto = atual.esquerda;     // salvando o filho que se encontra a esquerda
+
+                if (root == atual) {
+                    root = filhosubstituto;
                 }else{
-                    paiatual.direita = filhosubstituto;                   // se for maior eu seto ele a direita
-                }
-            } else if (atual.esquerda != null) { // se tem apenas um filho a esquerda
-                filhosubstituto = atual.esquerda;                             // salvando o filho que se encontra a esquerda
-                if (filhosubstituto.dado.compareTo(paiatual.dado) == -1){     // mesmo processo que acontece se tiver um filho a direita
-                    paiatual.esquerda = filhosubstituto;
-                }else{
-                    paiatual.direita = filhosubstituto;
+
+                    if (filhosubstituto.dado.compareTo(atual.pai.dado) == -1){   // mesmo processo que acontece se tiver um filho a direita
+                        atual.pai.esquerda = filhosubstituto;
+                    }else{
+                        atual.pai.direita = filhosubstituto;
+                    }
                 }
 
-            }else { // se n tem filhos
-                if (atual.dado.compareTo(atual.pai.dado) == -1){ // está comparando se o valor está a direita ou a esquerda do seu pai
-                    paiatual.esquerda = null; // se estiver a direita então o pai está setando como null a sua direita removendo o elemento
-                }else {
-                    paiatual.direita = null; // se estiver a esquerda então o pai está setando como null a sua direita removendo o elemento
-                }
             }
+            // Quando não se tem filhos
+            else {
+                if (atual == root){
+                    root = null;
+                }else {
+                    if (atual.dado.compareTo(atual.pai.dado) == -1){            // está comparando se o valor está a direita ou a esquerda do seu pai
+                        atual.pai.esquerda = null;                               // se estiver a direita então o pai está setando como null a sua direita removendo o elemento
+                    }else {
+                        atual.pai.direita = null;                                // se estiver a esquerda então o pai está setando como null a sua direita removendo o elemento
+                    }
+                }
+
+            }
+
         }
-
-
     }
 
     public void emOrdem(No<T> no){
@@ -115,35 +164,27 @@ public class Arvore<T extends Comparable<T>> {
         }
     }
 
-    public void preOrdem(){
+    public void preOrdem(No<T> no){
+        System.out.println(no.dado);
+        if (no.esquerda != null){
+            preOrdem(no.esquerda);
+        }
+        if (no.direita != null){
+            preOrdem(no.direita);
+        }
 
     }
-    public void posOrdem(){
-
+    public void posOrdem(No<T> no){
+        if (no != null){
+            posOrdem(no.esquerda);
+            posOrdem(no.direita);
+            System.out.println(no.dado);
+        }
     }
 
-//    public void emOrdem(Elemento<TIPO> atual){
-//        if (atual != null){
-//            emOrdem(atual.getEsquerda());
-//            System.out.println(atual.getValor());
-//            emOrdem(atual.getDireita());
-//        }
-//    }
-//
-//    public void preOrdem(Elemento<TIPO> atual){
-//        if (atual != null){
-//            System.out.println(atual.getValor());
-//            preOrdem(atual.getEsquerda());
-//            preOrdem(atual.getDireita());
-//        }
-//    }
-//
-//    public void posOrdem(Elemento<TIPO> atual){
-//        if (atual != null){
-//            posOrdem(atual.getEsquerda());
-//            posOrdem(atual.getDireita());
-//            System.out.println(atual.getValor());
-//        }
-//    }
+
+
+
+
 
 }
